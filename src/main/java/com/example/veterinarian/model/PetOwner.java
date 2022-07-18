@@ -31,6 +31,5 @@ public class PetOwner {
 
     private List<String> petId;
 
-    @Transient
     private String vetName;
 }

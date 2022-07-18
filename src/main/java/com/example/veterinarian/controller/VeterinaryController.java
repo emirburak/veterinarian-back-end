@@ -8,7 +8,6 @@ import com.example.veterinarian.service.impl.VetServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigInteger;
 import java.util.List;
 
 @RestController
@@ -17,10 +16,6 @@ public class VeterinaryController {
 
     @Autowired
     VetServiceImpl vetService;
-
-    @Autowired
-    PetOwnerRepository petOwnerRepository;
-
 
     @PostMapping(value = "/saveVet")
     public void saveVeterinarian(@RequestBody Veterinary veterinary) {
