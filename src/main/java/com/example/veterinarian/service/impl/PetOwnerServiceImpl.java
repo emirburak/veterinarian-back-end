@@ -20,15 +20,11 @@ public class PetOwnerServiceImpl implements PetOwnerService {
 
     @Override
     public void savePetOwner(PetOwner petOwner) {
-
-        petOwner.setId(UUID.randomUUID().toString());
-
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        petOwner.setPassword(passwordEncoder.encode(petOwner.getPassword()));
-
-        petOwner.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-
-        this.petOwnerRepository.save(petOwner);
+        if(petOwner.getPetOwnerName()!=null){
+            petOwner.setId(UUID.randomUUID().toString());
+            petOwner.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+            this.petOwnerRepository.save(petOwner);
+        }
     }
 
     @Override

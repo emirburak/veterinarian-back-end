@@ -5,10 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -27,6 +26,5 @@ public class Veterinary {
 
     private Date createdDate;
 
-    @DocumentReference(lookup="{'_id':?#{#self._id} }")
-    private PetOwner petOwner;
+    private List<String> petOwnerId;
 }

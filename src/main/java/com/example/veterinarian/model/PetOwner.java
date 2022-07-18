@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,8 +21,6 @@ public class PetOwner {
 
     private String petOwnerName;
 
-    private String password;
-
     private String address;
 
     private String veterinaryId;
@@ -28,4 +28,9 @@ public class PetOwner {
     private String contactNo;
 
     private Date createdDate;
+
+    private List<String> petId;
+
+    @Transient
+    private String vetName;
 }
