@@ -47,9 +47,6 @@ public class VetServiceImpl implements VeterinaryService {
 
         veterinary.setId(UUID.randomUUID().toString());
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        veterinary.setPassword(passwordEncoder.encode(veterinary.getPassword()));
-
         veterinary.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 
         this.veterinaryRepository.save(veterinary);
