@@ -1,16 +1,10 @@
 package com.example.veterinarian.controller;
 
-import com.example.veterinarian.model.ERole;
-import com.example.veterinarian.model.Pet;
-import com.example.veterinarian.model.PetOwner;
-import com.example.veterinarian.model.Veterinary;
-import com.example.veterinarian.repository.PetOwnerRepository;
+import com.example.veterinarian.model.*;
 import com.example.veterinarian.service.impl.VetServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.security.RolesAllowed;
 import java.util.List;
 
 @RestController
@@ -19,11 +13,6 @@ public class VeterinaryController {
 
     @Autowired
     VetServiceImpl vetService;
-
-    @PostMapping(value = "/saveVet")
-    public void saveVeterinarian(@RequestBody Veterinary veterinary) {
-        this.vetService.saveVet(veterinary);
-    }
 
     @PostMapping(value = "/savePetOwnerToVet")
     @PreAuthorize("hasRole('VET')")
@@ -36,6 +25,11 @@ public class VeterinaryController {
         this.vetService.savePetToPetOwner(pet);
     }
 
+    @PostMapping(value = "/saveNoteToPet/{id}")
+    public void saveNoteToPet(@RequestBody List<Note> note, @PathVariable String id) throws Exception {
+        this.vetService.saveNoteToPet(note,id);
+    }
+
     @GetMapping(value = "/findVetById/{vetId}")
     public Veterinary findVetById(@PathVariable String vetId) {
         return this.vetService.findVetById(vetId);
@@ -46,6 +40,7 @@ public class VeterinaryController {
         return this.vetService.findAllVet();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/deleteVetById/{id}")
     public void deleteVetById(@PathVariable String id) {
         this.vetService.deleteVetById(id);

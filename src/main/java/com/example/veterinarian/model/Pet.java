@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Id;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +30,7 @@ public class Pet {
 
     private String petOwnerName;
 
+    private List<Note> note;
+
+    private String secureCode;
 }

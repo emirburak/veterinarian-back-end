@@ -1,6 +1,7 @@
 package com.example.veterinarian.service.impl;
 
 import com.example.veterinarian.controller.VeterinaryController;
+import com.example.veterinarian.model.Note;
 import com.example.veterinarian.model.Pet;
 import com.example.veterinarian.model.PetOwner;
 import com.example.veterinarian.model.Veterinary;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class VetServiceImpl implements VeterinaryService {
@@ -41,16 +43,6 @@ public class VetServiceImpl implements VeterinaryService {
 
     @Autowired
     PetRepository petRepository;
-
-    @Override
-    public void saveVet(Veterinary veterinary) {
-
-        veterinary.setId(UUID.randomUUID().toString());
-
-        veterinary.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-
-        this.veterinaryRepository.save(veterinary);
-    }
 
     @Override
     public Veterinary findVetById(String id) {
@@ -127,6 +119,7 @@ public class VetServiceImpl implements VeterinaryService {
         PetOwner petOwner = this.petOwnerRepository.findByPetOwnerName(pet.getPetOwnerName());
         if (petOwner != null) {
             pet.setId(UUID.randomUUID().toString());
+            pet.setSecureCode(pet.getId().substring(32,36));
             List<String> eklenecekListe = petOwner.getPetId();
             if (eklenecekListe == null) {
                 List<String> yeniList = new ArrayList<>();
@@ -157,5 +150,28 @@ public class VetServiceImpl implements VeterinaryService {
         }
         this.petOwnerRepository.deleteById(id);
         this.veterinaryRepository.save(veterinary);
+    }
+
+    @Override
+    public void saveNoteToPet(List<Note> note, String id) throws Exception {
+        Pet pet =this.petRepository.findById(id).orElseThrow();
+        if(pet.getSecureCode().matches(note.get(0).getSecureCode())){
+            note.get(0).setNoteDate(new Timestamp(System.currentTimeMillis()));
+            if(pet.getNote().size()==0){
+                List<Note> emptyNoteList = new ArrayList<>();
+                emptyNoteList.addAll(note);
+                pet.setNote(emptyNoteList);
+            }
+            else
+            {
+                List<Note> notes = pet.getNote().stream().collect(Collectors.toList());
+                notes.addAll(note);
+                pet.setNote(notes);
+            }
+            this.petRepository.save(pet);
+        }
+        else {
+            throw new Exception("You did not provide the right secure code");
+        }
     }
 }

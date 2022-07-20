@@ -1,5 +1,6 @@
 package com.example.veterinarian.service;
 
+import com.example.veterinarian.model.Note;
 import com.example.veterinarian.model.Pet;
 import com.example.veterinarian.model.PetOwner;
 import com.example.veterinarian.model.Veterinary;
@@ -8,7 +9,6 @@ import java.math.BigInteger;
 import java.util.List;
 
 public interface VeterinaryService {
-    void saveVet(Veterinary veterinary);
 
     Veterinary findVetById(String id);
 
@@ -25,4 +25,6 @@ public interface VeterinaryService {
     void savePetToPetOwner(Pet pet);
 
     void deletePetOwnerById(String id);
+
+    void saveNoteToPet(List<Note> note, String id) throws Exception;
 }
