@@ -1,6 +1,6 @@
 package com.example.veterinarian.controller;
 
-import com.example.veterinarian.model.ERole;
+import com.example.veterinarian.model.enums.ERole;
 import com.example.veterinarian.model.Role;
 import com.example.veterinarian.model.Veterinary;
 import com.example.veterinarian.payload.request.LoginRequest;
@@ -83,7 +83,7 @@ public class AuthController {
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
 
-        // Create new user's account
+        // Create new veterinary's account
         Veterinary user = new Veterinary(signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()),signUpRequest.getVetName());

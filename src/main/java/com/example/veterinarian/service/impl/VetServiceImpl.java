@@ -1,10 +1,10 @@
 package com.example.veterinarian.service.impl;
 
 import com.example.veterinarian.controller.VeterinaryController;
-import com.example.veterinarian.model.Note;
-import com.example.veterinarian.model.Pet;
-import com.example.veterinarian.model.PetOwner;
-import com.example.veterinarian.model.Veterinary;
+import com.example.veterinarian.model.*;
+import com.example.veterinarian.model.enums.EDisease;
+import com.example.veterinarian.model.enums.ERole;
+import com.example.veterinarian.repository.DiseaseRepository;
 import com.example.veterinarian.repository.PetOwnerRepository;
 import com.example.veterinarian.repository.PetRepository;
 import com.example.veterinarian.repository.VeterinaryRepository;
@@ -26,10 +26,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +40,9 @@ public class VetServiceImpl implements VeterinaryService {
 
     @Autowired
     PetRepository petRepository;
+
+    @Autowired
+    DiseaseRepository diseaseRepository;
 
     @Override
     public Veterinary findVetById(String id) {
@@ -59,9 +59,9 @@ public class VetServiceImpl implements VeterinaryService {
         Veterinary veterinary = this.veterinaryRepository.findById(id).orElseThrow();
         List<String> petOwnerIds = veterinary.getPetOwnerId();
 
-        for(int i=0;i<petOwnerIds.size();i++){
+        for (int i = 0; i < petOwnerIds.size(); i++) {
             PetOwner petOwner = this.petOwnerRepository.findById(petOwnerIds.get(i)).orElseThrow();
-            for(int k=0;k<petOwner.getPetId().size();k++){
+            for (int k = 0; k < petOwner.getPetId().size(); k++) {
                 List<String> petIds = petOwner.getPetId();
                 this.petRepository.deleteById(petIds.get(k));
             }
@@ -119,7 +119,7 @@ public class VetServiceImpl implements VeterinaryService {
         PetOwner petOwner = this.petOwnerRepository.findByPetOwnerName(pet.getPetOwnerName());
         if (petOwner != null) {
             pet.setId(UUID.randomUUID().toString());
-            pet.setSecureCode(pet.getId().substring(32,36));
+            pet.setSecureCode(pet.getId().substring(32, 36));
             List<String> eklenecekListe = petOwner.getPetId();
             if (eklenecekListe == null) {
                 List<String> yeniList = new ArrayList<>();
@@ -136,7 +136,7 @@ public class VetServiceImpl implements VeterinaryService {
 
     @Override
     public void deletePetOwnerById(String id) {
-        PetOwner petOwner  = this.petOwnerRepository.findById(id).orElseThrow();
+        PetOwner petOwner = this.petOwnerRepository.findById(id).orElseThrow();
         Veterinary veterinary = this.veterinaryRepository.findById(petOwner.getVeterinaryId()).orElseThrow();
 
         List<String> animalIds = petOwner.getPetId();
@@ -154,24 +154,47 @@ public class VetServiceImpl implements VeterinaryService {
 
     @Override
     public void saveNoteToPet(List<Note> note, String id) throws Exception {
-        Pet pet =this.petRepository.findById(id).orElseThrow();
-        if(pet.getSecureCode().matches(note.get(0).getSecureCode())){
+        Pet pet = this.petRepository.findById(id).orElseThrow();
+        if (pet.getSecureCode().matches(note.get(0).getSecureCode())) {
             note.get(0).setNoteDate(new Timestamp(System.currentTimeMillis()));
-            if(pet.getNote().size()==0){
+            if (pet.getNote().size() == 0) {
                 List<Note> emptyNoteList = new ArrayList<>();
                 emptyNoteList.addAll(note);
                 pet.setNote(emptyNoteList);
-            }
-            else
-            {
+            } else {
                 List<Note> notes = pet.getNote().stream().collect(Collectors.toList());
                 notes.addAll(note);
                 pet.setNote(notes);
             }
             this.petRepository.save(pet);
-        }
-        else {
+        } else {
             throw new Exception("You did not provide the right secure code");
         }
+    }
+
+    @Override
+    public void saveDiseaseToPet(Set<String> diseases, String id) {
+        Pet pet = this.petRepository.findById(id).orElseThrow();
+        Set<Disease> newDiseases = new HashSet<>();
+        if (diseases == null) {
+            Disease notImportant = diseaseRepository.findByName(EDisease.DISEASE_BROKE)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            newDiseases.add(notImportant);
+        } else {
+            diseases.forEach(disease -> {
+                if ("broke".equals(disease)) {
+                    Disease disease1 = this.diseaseRepository.findByName(EDisease.DISEASE_BROKE)
+                            .orElseThrow(() -> new RuntimeException("Error: Disease is not found."));
+                    newDiseases.add(disease1);
+                }
+                if ("hurt".equals(disease)) {
+                    Disease disease1 = this.diseaseRepository.findByName(EDisease.DISEASE_HURT)
+                            .orElseThrow(() -> new RuntimeException("Error: Disease is not found."));
+                    newDiseases.add(disease1);
+                }
+            });
+        }
+        pet.setDisease(newDiseases);
+        this.petRepository.save(pet);
     }
 }

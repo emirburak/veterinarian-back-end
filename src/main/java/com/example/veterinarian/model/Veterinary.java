@@ -11,7 +11,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +40,7 @@ public class Veterinary {
     private List<String> petOwnerId;
 
     @DBRef
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> roles;
 
     public Veterinary(String username, String email, String encode, String vetName) {
         this.username=username;

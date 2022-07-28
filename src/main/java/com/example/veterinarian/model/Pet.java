@@ -4,10 +4,13 @@ package com.example.veterinarian.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Id;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -33,4 +36,9 @@ public class Pet {
     private List<Note> note;
 
     private String secureCode;
+
+    private List<String> pdfId;
+
+    @DBRef
+    private Set<Disease> disease;
 }

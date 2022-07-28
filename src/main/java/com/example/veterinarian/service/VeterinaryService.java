@@ -1,12 +1,10 @@
 package com.example.veterinarian.service;
 
-import com.example.veterinarian.model.Note;
-import com.example.veterinarian.model.Pet;
-import com.example.veterinarian.model.PetOwner;
-import com.example.veterinarian.model.Veterinary;
+import com.example.veterinarian.model.*;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Set;
 
 public interface VeterinaryService {
 
@@ -27,4 +25,6 @@ public interface VeterinaryService {
     void deletePetOwnerById(String id);
 
     void saveNoteToPet(List<Note> note, String id) throws Exception;
+
+    void saveDiseaseToPet(Set<String> diseases, String id);
 }

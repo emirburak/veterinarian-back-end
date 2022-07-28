@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -59,5 +60,10 @@ public class VeterinaryController {
     @GetMapping(value = "/findPetOwnerVetByName/{name}")
     public List<PetOwner> findPetOwnerVetByName(@PathVariable String name) {
         return this.vetService.findPetOwnerVetByName(name);
+    }
+
+    @PostMapping(value = "/saveDiseaseToPet/{id}")
+    public void saveDiseaseToPet(@RequestBody Set<String> disease, @PathVariable String id){
+        this.vetService.saveDiseaseToPet(disease,id);
     }
 }
