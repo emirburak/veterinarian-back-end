@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  mongo:
+    image: mongo:latest
+    container_name: "mongo"
+    ports:
+      - 27018:27018
+  veterinarian:
+    image: veterinarian:1.0
+    container_name: veterinarian
+    ports:
+      - 8081:8081
+    links:
+      - mongo

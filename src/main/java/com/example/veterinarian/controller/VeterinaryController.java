@@ -1,10 +1,13 @@
 package com.example.veterinarian.controller;
 
 import com.example.veterinarian.model.*;
+import com.example.veterinarian.service.EmailService;
 import com.example.veterinarian.service.impl.VetServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import javax.mail.SendFailedException;
 import java.util.List;
 import java.util.Set;
 
@@ -15,27 +18,33 @@ public class VeterinaryController {
     @Autowired
     VetServiceImpl vetService;
 
+    @Autowired
+    EmailService emailService;
+
     @PostMapping(value = "/savePetOwnerToVet")
     @PreAuthorize("hasRole('VET')")
     public void savePetOwnerToVet(@RequestBody PetOwner petOwner) {
         this.vetService.savePetOwnerToVet(petOwner);
     }
 
+    @PreAuthorize("hasRole('VET')")
     @PostMapping(value = "/savePetToPetOwner")
     public void savePetToPetOwner(@RequestBody Pet pet) {
         this.vetService.savePetToPetOwner(pet);
     }
 
+    @PreAuthorize("hasRole('VET')")
     @PostMapping(value = "/saveNoteToPet/{id}")
     public void saveNoteToPet(@RequestBody List<Note> note, @PathVariable String id) throws Exception {
-        this.vetService.saveNoteToPet(note,id);
+        this.vetService.saveNoteToPet(note, id);
     }
-
+    @PreAuthorize("hasRole('VET')")
     @GetMapping(value = "/findVetById/{vetId}")
     public Veterinary findVetById(@PathVariable String vetId) {
         return this.vetService.findVetById(vetId);
     }
 
+    @PreAuthorize("hasRole('VET')")
     @GetMapping(value = "/findAllVets")
     public List<Veterinary> findAllVet() {
         return this.vetService.findAllVet();
@@ -63,7 +72,19 @@ public class VeterinaryController {
     }
 
     @PostMapping(value = "/saveDiseaseToPet/{id}")
-    public void saveDiseaseToPet(@RequestBody Set<String> disease, @PathVariable String id){
-        this.vetService.saveDiseaseToPet(disease,id);
+    public void saveDiseaseToPet(@RequestBody Set<String> disease, @PathVariable String id) {
+        this.vetService.saveDiseaseToPet(disease, id);
+    }
+
+    @PostMapping(value = "/sendEmail")
+    @PreAuthorize("hasRole('VET')")
+    public String sendEmail(@RequestParam String to, @RequestParam String message, @RequestParam String subject) throws SendFailedException {
+        try {
+            this.emailService.sendSimpleEmail(to, subject, message);
+
+        } catch (Exception e) {
+            throw new SendFailedException(e.getMessage());
+        }
+        return ("Mail successfully delivered");
     }
 }
