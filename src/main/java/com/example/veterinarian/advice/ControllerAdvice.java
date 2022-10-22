@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
+import org.springframework.security.core.AuthenticationException;
 import javax.persistence.EntityNotFoundException;
 import javax.security.auth.login.CredentialNotFoundException;
 import java.util.NoSuchElementException;
@@ -36,17 +36,22 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<String> handleCredentialException(AccessDeniedException unauthorizedException){
+    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException unauthorizedException){
         return new ResponseEntity<>("You have no authorization to make this operation", HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(DiseaseException.class)
-    public ResponseEntity<String> handleCredentialException(DiseaseException unauthorizedException){
+    public ResponseEntity<String> handleDiseaseException(DiseaseException unauthorizedException){
         return new ResponseEntity<>("There is not such a disease defined. Please let us know by mail.", HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(FalseSecureCodeException.class)
-    public ResponseEntity<String> handleCredentialException(FalseSecureCodeException unauthorizedException){
+    public ResponseEntity<String> handleFalseSecureCodeException(FalseSecureCodeException unauthorizedException){
         return new ResponseEntity<>("You did not provide the right secure code.", HttpStatus.EXPECTATION_FAILED);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleAuthenticationException(AuthenticationException unauthorizedException){
+        return new ResponseEntity<>("You did not provide the right credentials", HttpStatus.UNAUTHORIZED);
     }
 }
