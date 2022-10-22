@@ -1,30 +1,18 @@
 package com.example.veterinarian.service.impl;
 
-import com.example.veterinarian.controller.VeterinaryController;
+import com.example.veterinarian.exceptions.DiseaseException;
+import com.example.veterinarian.exceptions.FalseSecureCodeException;
 import com.example.veterinarian.model.*;
 import com.example.veterinarian.model.enums.EDisease;
-import com.example.veterinarian.model.enums.ERole;
 import com.example.veterinarian.repository.DiseaseRepository;
 import com.example.veterinarian.repository.PetOwnerRepository;
 import com.example.veterinarian.repository.PetRepository;
 import com.example.veterinarian.repository.VeterinaryRepository;
 import com.example.veterinarian.service.VeterinaryService;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
-import com.mongodb.client.result.UpdateResult;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
-import java.math.BigInteger;
+import javax.persistence.EntityNotFoundException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,7 +34,7 @@ public class VetServiceImpl implements VeterinaryService {
 
     @Override
     public Veterinary findVetById(String id) {
-        return this.veterinaryRepository.findById(id).orElseThrow();
+        return this.veterinaryRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
@@ -56,7 +44,7 @@ public class VetServiceImpl implements VeterinaryService {
 
     @Override
     public void deleteVetById(String id) {
-        Veterinary veterinary = this.veterinaryRepository.findById(id).orElseThrow();
+        Veterinary veterinary = this.veterinaryRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         List<String> petOwnerIds = veterinary.getPetOwnerId();
 
         for (int i = 0; i < petOwnerIds.size(); i++) {
@@ -137,7 +125,7 @@ public class VetServiceImpl implements VeterinaryService {
     @Override
     public void deletePetOwnerById(String id) {
         PetOwner petOwner = this.petOwnerRepository.findById(id).orElseThrow();
-        Veterinary veterinary = this.veterinaryRepository.findById(petOwner.getVeterinaryId()).orElseThrow();
+        Veterinary veterinary = this.veterinaryRepository.findById(petOwner.getVeterinaryId()).orElseThrow(EntityNotFoundException::new);
 
         List<String> animalIds = petOwner.getPetId();
 
@@ -168,33 +156,35 @@ public class VetServiceImpl implements VeterinaryService {
             }
             this.petRepository.save(pet);
         } else {
-            throw new Exception("You did not provide the right secure code");
+            throw new FalseSecureCodeException("You did not provide the right secure code");
         }
     }
 
     @Override
     public void saveDiseaseToPet(Set<String> diseases, String id) {
-        Pet pet = this.petRepository.findById(id).orElseThrow();
+        Pet pet = this.petRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         Set<Disease> newDiseases = new HashSet<>();
         if (diseases == null) {
             Disease notImportant = diseaseRepository.findByName(EDisease.DISEASE_BROKE)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    .orElseThrow(() -> new DiseaseException("Error: Role is not found."));
             newDiseases.add(notImportant);
         } else {
             diseases.forEach(disease -> {
                 if ("broke".equals(disease)) {
                     Disease disease1 = this.diseaseRepository.findByName(EDisease.DISEASE_BROKE)
-                            .orElseThrow(() -> new RuntimeException("Error: Disease is not found."));
+                            .orElseThrow(() -> new DiseaseException("Error: Disease is not found."+disease));
                     newDiseases.add(disease1);
                 }
                 if ("hurt".equals(disease)) {
                     Disease disease1 = this.diseaseRepository.findByName(EDisease.DISEASE_HURT)
-                            .orElseThrow(() -> new RuntimeException("Error: Disease is not found."));
+                            .orElseThrow(() -> new DiseaseException("Error: Disease is not found."+disease));
                     newDiseases.add(disease1);
                 }
             });
         }
-        pet.setDisease(newDiseases);
-        this.petRepository.save(pet);
+        if(!newDiseases.isEmpty()){
+            pet.setDisease(newDiseases);
+            this.petRepository.save(pet);
+        }
     }
 }
